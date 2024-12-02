@@ -104,7 +104,7 @@ send_rental_invoice_email("example@gmail.com", obj)
 Przykładowa faktura:
 ![image](https://raw.githubusercontent.com/JSanchoG/bike-rental/refs/heads/main/assets/invoice-example.png)
 
-7. `generate_daily_report()`: Generuje raport dzienny w katalogu `data/` o nazwie `daily_report_<data>.json` lub `daily_report_<data>_<licznik>.json` w zależności, czy w tym dniu został już utworzony raport. Data w formacie YYYY-mm-dd.<br>Funkcja przekopiowuje plik pod zmienną `FILE_RENTALS_PATH`, domyślnie `data/rentals.json` do raportu wraz z datą utworzenia raportu w formatach YYYY-mm-dd i UNIX.
+7. `generate_daily_report()`: Generuje raport dzienny w katalogu `data/daily_reports/` o nazwie `daily_report_<data>.json` lub `daily_report_<data>_<licznik>.json` w zależności, czy w tym dniu został już utworzony raport. Data w formacie YYYY-mm-dd.<br>Funkcja przekopiowuje plik pod zmienną `FILE_RENTALS_PATH`, domyślnie `data/rentals.json` do raportu wraz z datą utworzenia raportu w formatach YYYY-mm-dd i UNIX.
 ```py
 def generate_daily_report()
 
