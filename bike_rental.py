@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -16,6 +17,10 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = int(os.getenv("SMTP_PORT"))
 
+def is_valid_email(email: str) -> bool:
+    email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    return bool(re.match(email_regex, email))
+
 if not os.path.exists("data"):
     os.makedirs("data")
 
@@ -23,6 +28,9 @@ def calculate_cost(rental_duration:int):
     '''
     Oblicza koszt wynajmu
     '''
+    if not isinstance(rental_duration, int):
+        print("calculate_cost() Error: rental_duration must be an integer")
+        return 0
     if rental_duration <= 0: return 0
     elif rental_duration <= 1: return 10
     else: return 10 + (rental_duration - 1) * 5
@@ -49,6 +57,8 @@ def rent_bike(customer_name:str, rental_duration:int):
     '''
     Dodaje wynajem roweru
     '''
+    if not isinstance(rental_duration, int):
+        print("rent_bike() Error: rental_duration must be an integer")
     rentalObject = {
         "customer_name": customer_name,
         "rental_duration": rental_duration,
@@ -86,11 +96,16 @@ def cancel_rental(customer_name:str):
         with open(FILE_RENTALS_PATH, 'r') as file:
             rentals = json.load(file)
         
+        rentals_before = len(rentals)
         rentals = [rental for rental in rentals if rental['customer_name'] != customer_name]
+        rentals_after = len(rentals)
 
-        with open(FILE_RENTALS_PATH, 'w') as file:
-            json.dump(rentals, file, indent=4)
-        print(f"Wynajem dla {customer_name} został anulowany.")
+        if rentals_before == rentals_after:
+            print(f"Nie znaleziono wynajmu dla {customer_name}.")
+        else:
+            with open(FILE_RENTALS_PATH, 'w') as file:
+                json.dump(rentals, file, indent=4)
+            print(f"Wynajem dla {customer_name} został anulowany.")
     else:
         print("Brak zapisanych wynajmów.")
 
@@ -137,6 +152,8 @@ def send_rental_invoice_email(customer_email:str, rental_details:dict):
     '''
     Wysyła e-mail z fakturą
     '''
+    if not is_valid_email(customer_email):
+        return print(f"\033[91mBłąd: e-mail {customer_email} jest nieprawidłowy\033[0m")
     # def load_html_template(file_path):
     #     with open(file_path, 'r', encoding='utf-8') as f:
     #         return f.read()
