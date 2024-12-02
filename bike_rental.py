@@ -6,6 +6,9 @@ import smtplib
 FILE_RENTALS_PATH = "data/rentals.json"
 CURRENCY = "PLN"
 
+if not os.path.exists("data"):
+    os.makedirs("data")
+
 def calculate_cost(rental_duration:int):
     '''
     Oblicza koszt wynajmu
@@ -81,12 +84,46 @@ def cancel_rental(customer_name:str):
     else:
         print("Brak zapisanych wynajmów.")
 
-def send_rental_invoice_email(customer_email, rental_details):
-    '''
-    Wysyła e-mail z fakturą
-    '''
-
 def generate_daily_report():
     '''
     Generuje raport dzienny
+    '''
+    today = datetime.now().strftime("%Y-%m-%d") # YYYY-mm-dd
+    today_unix = int(datetime.now().timestamp())
+    file_name = f"daily_report_{today}.json"
+    file_path = f"data/{file_name}"
+
+    if os.path.exists(file_path):
+        counter = 1
+        while os.path.exists(file_path):
+            file_path = f"data/daily_report_{today}_{counter}.json"
+            counter += 1
+
+        file_path = f"data/daily_report_{today}_{counter}.json"
+    
+    rentals_file = FILE_RENTALS_PATH
+
+    if os.path.exists(rentals_file):
+        with open(rentals_file, 'r') as file:
+            rentals = json.load(file)
+    else:
+        print(f"Brak danych wynajmów w {FILE_RENTALS_PATH}")
+        rentals = []
+    
+    daily_report = {
+        "time": {
+            "formatted": today, # YYYY-mm-dd
+            "unix": today_unix # UNIX Date
+        },
+        "rentals": rentals
+    }
+    
+    with open(file_path, 'w') as file:
+        json.dump(daily_report, file, indent=4)
+
+    print(f"Raport dzienny zapisany jako {file_path}")
+
+def send_rental_invoice_email(customer_email, rental_details):
+    '''
+    Wysyła e-mail z fakturą
     '''
