@@ -121,8 +121,8 @@ def generate_daily_report():
     if os.path.exists(file_path):
         counter = 1
         while os.path.exists(file_path):
-            file_path = f"data/daily_report_{today}_{counter}.json"
             counter += 1
+            file_path = f"data/daily_report_{today}_{counter}.json"
 
         file_path = f"data/daily_report_{today}_{counter}.json"
     
@@ -168,7 +168,7 @@ def send_rental_invoice_email(customer_email:str, rental_details:dict):
     unix_timestamp = rental_details['time']['unix']
     dt_object = datetime.utcfromtimestamp(unix_timestamp)
     new_dt_object = dt_object.replace(day=dt_object.day + 30)
-    dueDate = new_dt_object.strftime('%d-%m-%Y')
+    dueDate = new_dt_object.strftime('%d.%m.%Y')
     html_content = html_content.replace("%client_due%", dueDate)
     html_content = html_content.replace("%client_name%", rental_details['customer_name'])
     html_content = html_content.replace("%client_email%", customer_email)
