@@ -2,9 +2,19 @@ import json
 import os
 from datetime import datetime
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
 FILE_RENTALS_PATH = "data/rentals.json"
 CURRENCY = "PLN"
+FILE_INVOICE_TEMPLATE_PATH = "assets/invoice.html"
+
+load_dotenv()
+EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_PORT = int(os.getenv("SMTP_PORT"))
 
 if not os.path.exists("data"):
     os.makedirs("data")
@@ -123,7 +133,43 @@ def generate_daily_report():
 
     print(f"Raport dzienny zapisany jako {file_path}")
 
-def send_rental_invoice_email(customer_email, rental_details):
+def send_rental_invoice_email(customer_email:str, rental_details:dict):
     '''
     Wysyła e-mail z fakturą
     '''
+    # def load_html_template(file_path):
+    #     with open(file_path, 'r', encoding='utf-8') as f:
+    #         return f.read()
+    # html_template = load_html_template(FILE_INVOICE_TEMPLATE_PATH)
+    with open(FILE_INVOICE_TEMPLATE_PATH, 'r', encoding='utf-8') as file:
+        html_template = file.read()
+
+    html_content = html_template.replace("%top-text%", "")
+    # html_content = html_template.replace("%top-text%", "Faktura #69<br />")
+    html_content = html_content.replace("%logo%", 'https://raw.githubusercontent.com/JSanchoG/rental/refs/heads/main/assets/logo.png')
+    html_content = html_content.replace("%client_date%", rental_details['time']['formatted'])
+    unix_timestamp = rental_details['time']['unix']
+    dt_object = datetime.utcfromtimestamp(unix_timestamp)
+    new_dt_object = dt_object.replace(day=dt_object.day + 30)
+    dueDate = new_dt_object.strftime('%d-%m-%Y')
+    html_content = html_content.replace("%client_due%", dueDate)
+    html_content = html_content.replace("%client_name%", rental_details['customer_name'])
+    html_content = html_content.replace("%client_email%", customer_email)
+    html_content = html_content.replace("%client_time%", f"{str(rental_details['rental_duration'])} godz.")
+    html_content = html_content.replace("%client_price%", f"{rental_details['cost']} {CURRENCY}")
+    html_content = html_content.replace("%client_price_total%", f"{rental_details['cost']} {CURRENCY}")
+
+    msg = MIMEMultipart()
+    msg["From"] = f"Jakub Gożuk PW"
+    msg["To"] = customer_email
+    msg["Subject"] = "Faktura za wynajem roweru"
+
+    msg.attach(MIMEText(html_content, "html"))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
+            server.sendmail(os.getenv("EMAIL_SENDER"), customer_email, msg.as_string())
+            print(f"\033[92mE-mail with the invoice has been sent to: {customer_email}\033[0m")
+    except Exception as e:
+        print(f"An error occurred while sending email: {e}")
