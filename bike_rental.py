@@ -146,7 +146,7 @@ def send_rental_invoice_email(customer_email:str, rental_details:dict):
 
     html_content = html_template.replace("%top-text%", "")
     # html_content = html_template.replace("%top-text%", "Faktura #69<br />")
-    html_content = html_content.replace("%logo%", 'https://raw.githubusercontent.com/JSanchoG/rental/refs/heads/main/assets/logo.png')
+    html_content = html_content.replace("%logo%", 'https://raw.githubusercontent.com/JSanchoG/bike-rental/refs/heads/main/assets/logo.png')
     html_content = html_content.replace("%client_date%", rental_details['time']['formatted'])
     unix_timestamp = rental_details['time']['unix']
     dt_object = datetime.utcfromtimestamp(unix_timestamp)
