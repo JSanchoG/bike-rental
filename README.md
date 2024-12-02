@@ -124,6 +124,6 @@ Przykład raportu:
         "formatted": "2024-12-02", <-- Data wygenerowania raportu
         "unix": 1733160513
     },
-    "rentals": [] <-- zawartość pliku rentals.json
+    "rentals": [] <-- zawartość pliku data/rentals.json
 }
 ```
