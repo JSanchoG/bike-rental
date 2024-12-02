@@ -11,22 +11,23 @@ Aplikacja bike_rental.py to system wynajmu rowerów, umożliwiający wynajmowani
 > pip install python-dotenv
 > ```
 
-## Struktura plików
-Raporty dzienne zapisują się bezpośrednio w katalogu `data/`.
-```
-bike_rental/
-├── bike_rental.py
-├── data/
-│   └── daily_reports/
-└── .env
-```
-
 Plik `.env` z danymi konfiguracyjnymi:
 ```env
 EMAIL_SENDER=<your_google_mail>
 EMAIL_PASSWORD=<hasło_aplikacji_google>
 SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=465
+```
+
+## Struktura plików
+Katalogi `data/` oraz `data/daily_reports/` tworzą się od razu po wywołaniu programu, plik `data/rentals.json` tworzy się po wywołaniu funkcji `save_rental()`.
+```
+bike_rental/
+├── bike_rental.py
+├── data/
+│   └── rentals.json
+│   └── daily_reports/
+└── .env
 ```
 
 ## Funkcje programu

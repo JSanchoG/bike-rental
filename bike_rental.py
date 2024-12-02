@@ -7,9 +7,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 
+DIR_DATA = "data/"
+DIR_DAILY_REPORTS = "data/daily_reports/"
 FILE_RENTALS_PATH = "data/rentals.json"
-CURRENCY = "PLN"
 FILE_INVOICE_TEMPLATE_PATH = "assets/invoice.html"
+CURRENCY = "PLN"
 
 load_dotenv()
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
@@ -17,12 +19,13 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = int(os.getenv("SMTP_PORT"))
 
+# Create non-existent directories
+if not os.path.exists("data"): os.makedirs("data")
+if not os.path.exists("data/daily_reports"): os.makedirs("data/daily_reports")
+
 def is_valid_email(email: str) -> bool:
     email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     return bool(re.match(email_regex, email))
-
-if not os.path.exists("data"):
-    os.makedirs("data")
 
 def calculate_cost(rental_duration:int):
     '''
@@ -116,15 +119,15 @@ def generate_daily_report():
     today = datetime.now().strftime("%Y-%m-%d") # YYYY-mm-dd
     today_unix = int(datetime.now().timestamp())
     file_name = f"daily_report_{today}.json"
-    file_path = f"data/{file_name}"
+    file_path = f"{DIR_DAILY_REPORTS}{file_name}"
 
     if os.path.exists(file_path):
         counter = 1
         while os.path.exists(file_path):
             counter += 1
-            file_path = f"data/daily_report_{today}_{counter}.json"
+            file_path = f"{DIR_DAILY_REPORTS}daily_report_{today}_{counter}.json"
 
-        file_path = f"data/daily_report_{today}_{counter}.json"
+        file_path = f"{DIR_DAILY_REPORTS}daily_report_{today}_{counter}.json"
     
     rentals_file = FILE_RENTALS_PATH
 
